@@ -15,16 +15,21 @@ if (!gallery) throw new Error("Missing .gallery element in HTML");
 if (!loader) throw new Error("Missing .loader element in HTML");
 
 // Initialize render helpers with element instances
-const ui = initRender({ gallery, loader, loadMoreButton });
+const ui = initRender({
+  gallery: gallery as HTMLElement,
+  loader: loader as HTMLElement,
+  loadMoreButton: loadMoreButton as HTMLElement,
+});
 
 searchForm.addEventListener("submit", onFormSubmit);
 loadMoreButton.addEventListener("click", onLoadMoreClick);
 
-async function onFormSubmit(event) {
+async function onFormSubmit(event: Event) {
   event.preventDefault();
   const form = event.target;
-  const formData = new FormData(form);
-  query = formData.get("search-text").trim();
+  const formData = new FormData(form as HTMLFormElement);
+
+  query = formData.get("search-text")?.toString().trim() || "";
 
   if (query === "") {
     ui.showToast("Please enter a search query.");
@@ -35,7 +40,7 @@ async function onFormSubmit(event) {
   ui.clearGallery();
   ui.hideLoadMoreButton();
   await fetchAndRender();
-  form.reset();
+  (form as HTMLFormElement).reset();
 }
 
 async function onLoadMoreClick() {
@@ -53,7 +58,7 @@ async function fetchAndRender() {
 
     if (isInitial && data.hits.length === 0) {
       ui.showToast(
-        "There are no images matching your search query. Try again!"
+        "There are no images matching your search query. Try again!",
       );
       return;
     }
